@@ -7,12 +7,14 @@ public class PlayerController : MonoBehaviour
     public Vector3 acceleration;
     public Vector3 velocity;
     public float maxSpeed;
+    private Vector3 startPos;
     // Start is called before the first frame update
     void Start()
     {
         acceleration = Vector3.forward;
         velocity = Vector3.zero;
-        maxSpeed = .1f;
+        maxSpeed = .5f;
+        startPos = transform.position;
         
     }
 
@@ -20,8 +22,14 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         velocity += acceleration * Time.deltaTime;
-        Vector3.ClampMagnitude(velocity, maxSpeed);
+        velocity = Vector3.ClampMagnitude(velocity, maxSpeed);
         transform.position = transform.position + velocity;
+        transform.RotateAroundLocal(Vector3.right, 10 * Time.deltaTime);
+        if (transform.position.z > 120f)
+        {
+            startPos.y = transform.position.y;
+            transform.position = startPos;
+        }
         
     }
 }
