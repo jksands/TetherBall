@@ -49,9 +49,11 @@ public class PlayerController : MonoBehaviour
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
-
-            if (Physics.Raycast(ray, out hit, tetherDistance))
+            // Get the 8th mask (which is the tetherable layer)
+            int layerMask = 1 << 8;
+            if (Physics.Raycast(ray, out hit, tetherDistance, layerMask))
             {
+
                 Vector3 newDirVector = (hit.point - transform.position).normalized;
                 newDirVector.x *= tetherForceLateral;
                 newDirVector.y *= tetherForceVertical;
