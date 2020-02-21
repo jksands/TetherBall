@@ -1754,6 +1754,7 @@ MonoBehaviour:
   currentOffset: 0
   prevOffset: 0
   moveBy: 0
+  debugBlack: {fileID: 2100000, guid: 674d363d24666ae4fb3071be7f07d2a0, type: 2}
 --- !u!4 &1766967794 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7072550941459380096, guid: c21f13c6a610cc646b67383cbadfec2e,

@@ -21,9 +21,14 @@ public class PlayerController : MonoBehaviour
     public float prevOffset;
     public float moveBy;
 
+    private RaycastHit hit;
+
+    public Material debugBlack;
+
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log(hit);
         direction = Vector3.forward * speed;
         //velocity = Vector3.zero;
         //maxSpeed = .5f;
@@ -46,6 +51,7 @@ public class PlayerController : MonoBehaviour
         else if(Input.GetMouseButtonUp(0))
         {
             mouseDown = false;
+            hit = new RaycastHit();
             rb.velocity = new Vector3(0, rb.velocity.y, rb.velocity.z);
         }
         // Calculate offset
@@ -89,7 +95,7 @@ public class PlayerController : MonoBehaviour
         if (mouseDown)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
+            // RaycastHit hit;
             // Get the 8th mask (which is the tetherable layer)
             int layerMask = 1 << 8;
 
@@ -104,7 +110,9 @@ public class PlayerController : MonoBehaviour
                 direction += newDirVector;
 
                 Debug.DrawLine(ray.origin, hit.point);
+
                 Debug.Log(hit.point);
+                
             }
         }
 
@@ -140,6 +148,22 @@ public class PlayerController : MonoBehaviour
             direction = Vector3.forward;
             rb.velocity = Vector3.forward;
             currentOffset = 0;
+        }
+    }
+
+    void OnRenderObject()
+    {
+        if (mouseDown)
+        {
+            if (hit.distance > 0)
+            {
+
+                debugBlack.SetPass(0);
+                GL.Begin(GL.LINES); // LINE
+                GL.Vertex3(transform.position.x, transform.position.y, transform.position.z);
+                GL.Vertex3(hit.point.x, hit.point.y, hit.point.z);
+                GL.End();
+            }
         }
     }
 }
