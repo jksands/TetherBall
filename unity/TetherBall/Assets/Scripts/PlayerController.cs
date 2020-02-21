@@ -15,6 +15,11 @@ public class PlayerController : MonoBehaviour
     private Vector3 startPos;
     private bool mouseDown = false;
     private Rigidbody rb;
+    private float maxLeft;
+    private float maxRight;
+    public float currentOffset;
+    public float prevOffset;
+    public float moveBy;
 
     // Start is called before the first frame update
     void Start()
@@ -23,6 +28,9 @@ public class PlayerController : MonoBehaviour
         //velocity = Vector3.zero;
         //maxSpeed = .5f;
         startPos = transform.position;
+        maxLeft = -3;
+        maxRight = 3;
+        currentOffset = 0;
         rb = gameObject.GetComponent<Rigidbody>();
         
     }
@@ -30,6 +38,7 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Set to previous position
         if (Input.GetMouseButtonDown(0))
         {
             mouseDown = true;
@@ -38,11 +47,42 @@ public class PlayerController : MonoBehaviour
         {
             mouseDown = false;
         }
+        // Calculate offset
+        if (Input.GetKey(KeyCode.A))
+        {
+            currentOffset -= 10 * Time.deltaTime;
+            if (currentOffset < maxLeft)
+                currentOffset = maxLeft;
+        }
+        else if (Input.GetKey(KeyCode.D))
+        {
+            currentOffset += 10 * Time.deltaTime;
+            if (currentOffset > maxRight)
+                currentOffset = maxRight;
+        }
+        else
+        {
+            if (currentOffset != 0)
+            {
+                currentOffset += ((0 - currentOffset) / Mathf.Abs(currentOffset)) * 10 * Time.deltaTime;
+                if (currentOffset > -.1f && currentOffset < .1f)
+                    currentOffset = 0;
+            }
+
+        }
+        moveBy = currentOffset - prevOffset;
+        prevOffset = currentOffset;
+        Debug.Log(moveBy);
+        // Apply it to the position
+        Vector3 temp = transform.position;
+        temp.x += moveBy;
+        rb.MovePosition(temp);
 
     }
 
     void FixedUpdate()
     {
+        // rb.velocity = new Vector3(0, 0, rb.velocity.z);
         direction = Vector3.forward;
 
         if (mouseDown)
@@ -51,6 +91,7 @@ public class PlayerController : MonoBehaviour
             RaycastHit hit;
             // Get the 8th mask (which is the tetherable layer)
             int layerMask = 1 << 8;
+
             if (Physics.Raycast(ray, out hit, tetherDistance, layerMask))
             {
 
@@ -94,6 +135,8 @@ public class PlayerController : MonoBehaviour
         {
             Debug.Log("HIT OBSTACLE");
             transform.position = startPos;
+            direction = Vector3.forward;
+            rb.velocity = Vector3.forward;
         }
     }
 }
