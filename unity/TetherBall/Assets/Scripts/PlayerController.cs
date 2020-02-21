@@ -129,7 +129,7 @@ public class PlayerController : MonoBehaviour
         //transform.position = transform.position + velocity;
         //transform.RotateAroundLocal(Vector3.right, 10 * Time.deltaTime);
 
-        if (transform.position.z > 300f || transform.position.y < -20)
+        if (transform.position.z > 500f || transform.position.y < -20)
         {
             transform.position = startPos;
             currentOffset = 0;
