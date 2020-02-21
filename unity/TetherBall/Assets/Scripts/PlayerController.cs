@@ -32,4 +32,12 @@ public class PlayerController : MonoBehaviour
         }
         
     }
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == "Obstacle")
+        {
+            Debug.Log("HIT OBSTACLE");
+            transform.position = startPos;
+        }
+    }
 }
