@@ -9,8 +9,8 @@ public class PlayerController : MonoBehaviour
     public float tetherForceLateral = 5f;
     public float tetherForceVertical = 5f;
     
-    public float speed = 5f;
-    public float maxSpeed = 50f;
+    public float speed = 20f;
+    public float maxSpeed = 10f;
 
     private Vector3 startPos;
     private bool mouseDown = false;
@@ -46,6 +46,7 @@ public class PlayerController : MonoBehaviour
         else if(Input.GetMouseButtonUp(0))
         {
             mouseDown = false;
+            rb.velocity = new Vector3(0, rb.velocity.y, rb.velocity.z);
         }
         // Calculate offset
         if (Input.GetKey(KeyCode.A))
@@ -120,9 +121,10 @@ public class PlayerController : MonoBehaviour
         //transform.position = transform.position + velocity;
         //transform.RotateAroundLocal(Vector3.right, 10 * Time.deltaTime);
 
-        if (transform.position.z > 120f || transform.position.y < -20)
+        if (transform.position.z > 300f || transform.position.y < -20)
         {
             transform.position = startPos;
+            currentOffset = 0;
             direction = Vector3.forward;
             rb.velocity = Vector3.forward;
         }
@@ -137,6 +139,7 @@ public class PlayerController : MonoBehaviour
             transform.position = startPos;
             direction = Vector3.forward;
             rb.velocity = Vector3.forward;
+            currentOffset = 0;
         }
     }
 }
