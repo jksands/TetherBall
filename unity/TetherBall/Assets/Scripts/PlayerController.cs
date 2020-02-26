@@ -25,6 +25,10 @@ public class PlayerController : MonoBehaviour
 
     public Material debugBlack;
 
+    public float originX;
+    private float originOff;
+    private bool centralizing;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -37,6 +41,8 @@ public class PlayerController : MonoBehaviour
         maxRight = 3;
         currentOffset = 0;
         rb = gameObject.GetComponent<Rigidbody>();
+        originX = transform.position.x;
+        centralizing = false;
         
     }
 
@@ -47,46 +53,67 @@ public class PlayerController : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             mouseDown = true;
+            // centralizing = false;
         }
         else if(Input.GetMouseButtonUp(0))
         {
             mouseDown = false;
             hit = new RaycastHit();
             rb.velocity = new Vector3(0, rb.velocity.y, rb.velocity.z);
+            // centralizing = true;
+            originOff = originX - transform.position.x;
         }
-        // Calculate offset
-        if (Input.GetKey(KeyCode.A))
+        Vector3 temp = transform.position;
+        if (centralizing)
         {
-            currentOffset -= 10 * Time.deltaTime;
-            if (currentOffset < maxLeft)
-                currentOffset = maxLeft;
-        }
-        else if (Input.GetKey(KeyCode.D))
-        {
-            currentOffset += 10 * Time.deltaTime;
-            if (currentOffset > maxRight)
-                currentOffset = maxRight;
+            ReturnToOrigin();
         }
         else
         {
-            if (currentOffset != 0)
+            // Calculate offset
+            if (Input.GetKey(KeyCode.A))
             {
-                currentOffset += ((0 - currentOffset) / Mathf.Abs(currentOffset)) * 10 * Time.deltaTime;
-                if (currentOffset > -.1f && currentOffset < .1f)
-                    currentOffset = 0;
+                currentOffset -= 10 * Time.deltaTime;
+                if (currentOffset < maxLeft)
+                    currentOffset = maxLeft;
             }
+            else if (Input.GetKey(KeyCode.D))
+            {
+                currentOffset += 10 * Time.deltaTime;
+                if (currentOffset > maxRight)
+                    currentOffset = maxRight;
+            }
+            else
+            {
+                if (currentOffset != 0)
+                {
+                    currentOffset += ((0 - currentOffset) / Mathf.Abs(currentOffset)) * 10 * Time.deltaTime;
+                    if (currentOffset > -.1f && currentOffset < .1f)
+                        currentOffset = 0;
+                }
 
+            }
+            moveBy = currentOffset - prevOffset;
+            prevOffset = currentOffset;
+            // Debug.Log(moveBy);
+            // Apply it to the position
+            temp.x += moveBy;
+            rb.MovePosition(temp);
         }
-        moveBy = currentOffset - prevOffset;
-        prevOffset = currentOffset;
-        Debug.Log(moveBy);
-        // Apply it to the position
-        Vector3 temp = transform.position;
-        temp.x += moveBy;
-        rb.MovePosition(temp);
 
     }
 
+    void ReturnToOrigin()
+    {
+        Vector3 temp = transform.position;
+        float range = Mathf.Abs(temp.x - originX);
+        if (range < .5f)
+        {
+            centralizing = false;
+        }
+        temp.x += originOff * Time.deltaTime;
+        rb.MovePosition(temp);
+    }
     void FixedUpdate()
     {
         // rb.velocity = new Vector3(0, 0, rb.velocity.z);
@@ -135,6 +162,7 @@ public class PlayerController : MonoBehaviour
             currentOffset = 0;
             direction = Vector3.forward;
             rb.velocity = Vector3.forward;
+            transform.rotation = Quaternion.identity;
         }
 
     }
@@ -148,6 +176,7 @@ public class PlayerController : MonoBehaviour
             direction = Vector3.forward;
             rb.velocity = Vector3.forward;
             currentOffset = 0;
+            transform.rotation = Quaternion.identity;
         }
     }
 
