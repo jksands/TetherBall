@@ -12,11 +12,12 @@ public class PlayerController : MonoBehaviour
     public float speed = 20f;
     public float maxSpeed = 10f;
 
+    public float maxGyroOffset = 3f;
+    private Vector3 gyroOffset;
+
     private Vector3 startPos;
     private bool mouseDown = false;
     private Rigidbody rb;
-    private float maxLeft;
-    private float maxRight;
     public float currentOffset;
     public float prevOffset;
     public float moveBy;
@@ -24,6 +25,7 @@ public class PlayerController : MonoBehaviour
     private RaycastHit hit;
 
     public Material debugBlack;
+    public Material debugYellow;
 
     public float originX;
     private float originOff;
@@ -37,8 +39,13 @@ public class PlayerController : MonoBehaviour
         //velocity = Vector3.zero;
         //maxSpeed = .5f;
         startPos = transform.position;
-        maxLeft = -3;
-        maxRight = 3;
+
+        // Set the initial gyro offset
+        gyroOffset = new Vector3(0, maxGyroOffset, 0);
+
+        // Enable the gyroscope
+        Input.gyro.enabled = true;
+
         currentOffset = 0;
         rb = gameObject.GetComponent<Rigidbody>();
         originX = transform.position.x;
@@ -49,20 +56,22 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Set to previous position
-        if (Input.GetMouseButtonDown(0))
-        {
-            mouseDown = true;
-            // centralizing = false;
-        }
-        else if(Input.GetMouseButtonUp(0))
-        {
-            mouseDown = false;
-            hit = new RaycastHit();
-            rb.velocity = new Vector3(0, rb.velocity.y, rb.velocity.z);
-            // centralizing = true;
-            originOff = originX - transform.position.x;
-        }
+        // Moved to FixedUpdate
+
+        //// Set to previous position
+        //if (Input.GetMouseButtonDown(0))
+        //{
+        //    mouseDown = true;
+        //    // centralizing = false;
+        //}
+        //else if(Input.GetMouseButtonUp(0))
+        //{
+        //    mouseDown = false;
+        //    hit = new RaycastHit();
+        //    rb.velocity = new Vector3(0, rb.velocity.y, rb.velocity.z);
+        //    // centralizing = true;
+        //    originOff = originX - transform.position.x;
+        //}
         Vector3 temp = transform.position;
         if (centralizing)
         {
@@ -70,29 +79,34 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            // Calculate offset
-            if (Input.GetKey(KeyCode.A))
-            {
-                currentOffset -= 10 * Time.deltaTime;
-                if (currentOffset < maxLeft)
-                    currentOffset = maxLeft;
-            }
-            else if (Input.GetKey(KeyCode.D))
-            {
-                currentOffset += 10 * Time.deltaTime;
-                if (currentOffset > maxRight)
-                    currentOffset = maxRight;
-            }
-            else
-            {
-                if (currentOffset != 0)
-                {
-                    currentOffset += ((0 - currentOffset) / Mathf.Abs(currentOffset)) * 10 * Time.deltaTime;
-                    if (currentOffset > -.1f && currentOffset < .1f)
-                        currentOffset = 0;
-                }
+            // Handling Gyroscope code
+            gyroOffset = GyroToUnity(Input.gyro.attitude) * new Vector3(0, maxGyroOffset, 0);
+            currentOffset = gyroOffset.x;
+            Mathf.Clamp(currentOffset, -maxGyroOffset, maxGyroOffset);
 
-            }
+            //// Calculate offset
+            //if (Input.GetKey(KeyCode.A))
+            //{
+            //    currentOffset -= 10 * Time.deltaTime;
+            //    if (currentOffset < maxLeft)
+            //        currentOffset = maxLeft;
+            //}
+            //else if (Input.GetKey(KeyCode.D))
+            //{
+            //    currentOffset += 10 * Time.deltaTime;
+            //    if (currentOffset > maxRight)
+            //        currentOffset = maxRight;
+            //}
+            //else
+            //{
+            //    if (currentOffset != 0)
+            //    {
+            //        currentOffset += ((0 - currentOffset) / Mathf.Abs(currentOffset)) * 10 * Time.deltaTime;
+            //        if (currentOffset > -.1f && currentOffset < .1f)
+            //            currentOffset = 0;
+            //    }
+
+            //}
             moveBy = currentOffset - prevOffset;
             prevOffset = currentOffset;
             // Debug.Log(moveBy);
@@ -101,6 +115,11 @@ public class PlayerController : MonoBehaviour
             rb.MovePosition(temp);
         }
 
+    }
+
+    Quaternion GyroToUnity(Quaternion q)
+    {
+        return new Quaternion(q.x, q.y, -q.z, -q.w);
     }
 
     void ReturnToOrigin()
@@ -119,9 +138,9 @@ public class PlayerController : MonoBehaviour
         // rb.velocity = new Vector3(0, 0, rb.velocity.z);
         direction = Vector3.forward;
 
-        if (mouseDown)
+        if (Input.touchCount > 0)
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Ray ray = Camera.main.ScreenPointToRay(Input.touches[0].position);
             // RaycastHit hit;
             // Get the 8th mask (which is the tetherable layer)
             int layerMask = 1 << 8;
@@ -141,6 +160,14 @@ public class PlayerController : MonoBehaviour
                 Debug.Log(hit.point);
                 
             }
+        }
+        else
+        {
+            mouseDown = false;
+            hit = new RaycastHit();
+            rb.velocity = new Vector3(0, rb.velocity.y, rb.velocity.z);
+            // centralizing = true;
+            originOff = originX - transform.position.x;
         }
 
         rb.AddForce(direction * speed);
@@ -182,7 +209,7 @@ public class PlayerController : MonoBehaviour
 
     void OnRenderObject()
     {
-        if (mouseDown)
+        if (Input.touchCount>0)
         {
             if (hit.distance > 0)
             {
@@ -194,5 +221,11 @@ public class PlayerController : MonoBehaviour
                 GL.End();
             }
         }
+
+        //debugYellow.SetPass(0);
+        //GL.Begin(GL.LINES);
+        //GL.Vertex3(transform.position.x, transform.position.y, transform.position.z);
+        //GL.Vertex3(transform.position.x + gyroOffset.x, transform.position.y + gyroOffset.y, transform.position.z + gyroOffset.z);
+        //GL.End();
     }
 }
