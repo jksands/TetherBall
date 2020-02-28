@@ -60,9 +60,17 @@ public class PlayerController : MonoBehaviour
     {
        
         Vector3 temp = transform.position;
+        moveBy = 0;
+        //if (Mathf.Abs(rb.velocity.y) < .1f)
+        //{
+        //    originOff = originX - transform.position.x;
+        //    centralizing = true;
+        //}
+        //else
+        //    centralizing = false;
         if (centralizing)
         {
-            ReturnToOrigin();
+            // ReturnToOrigin();
         }
         else
         {
@@ -82,7 +90,7 @@ public class PlayerController : MonoBehaviour
                     hit = new RaycastHit();
                     rb.velocity = new Vector3(0, rb.velocity.y, rb.velocity.z);
                     // centralizing = true;
-                    originOff = originX - transform.position.x;
+                    // originOff = originX - transform.position.x;
                 }
                 //// Calculate offset
                 if (Input.GetKey(KeyCode.A))
@@ -90,21 +98,33 @@ public class PlayerController : MonoBehaviour
                     currentOffset -= 10 * Time.deltaTime;
                     if (currentOffset < -maxUnityOffset)
                         currentOffset = -maxUnityOffset;
+
+
+                    moveBy = currentOffset - prevOffset;
                 }
                 else if (Input.GetKey(KeyCode.D))
                 {
                     currentOffset += 10 * Time.deltaTime;
                     if (currentOffset > maxUnityOffset)
                         currentOffset = maxUnityOffset;
+
+
+                    moveBy = currentOffset - prevOffset;
                 }
                 else
                 {
-                    if (currentOffset != 0)
+                    if (Mathf.Abs(rb.velocity.y) < .1f)
                     {
-                        currentOffset += ((0 - currentOffset) / Mathf.Abs(currentOffset)) * 10 * Time.deltaTime;
-                        if (currentOffset > -.1f && currentOffset < .1f)
-                            currentOffset = 0;
+                        currentOffset = 0;
+                        originOff = 10 * (originX - transform.position.x);
+                        temp = ReturnToOrigin(temp);
                     }
+                    //if (currentOffset != 0)
+                    //{
+                    //    currentOffset += ((0 - currentOffset) / Mathf.Abs(currentOffset)) * 10 * Time.deltaTime;
+                    //    if (currentOffset > -.1f && currentOffset < .1f)
+                    //        currentOffset = 0;
+                    //}
 
                 }
             }
@@ -118,7 +138,6 @@ public class PlayerController : MonoBehaviour
             }
 
             
-            moveBy = currentOffset - prevOffset;
             prevOffset = currentOffset;
             // Debug.Log(moveBy);
             // Apply it to the position
@@ -133,16 +152,17 @@ public class PlayerController : MonoBehaviour
         return new Quaternion(q.x, q.y, -q.z, -q.w);
     }
 
-    void ReturnToOrigin()
+    Vector3 ReturnToOrigin(Vector3 temp)
     {
-        Vector3 temp = transform.position;
+        // temp = transform.position;
         float range = Mathf.Abs(temp.x - originX);
-        if (range < .5f)
+        if (range > .5f)
         {
-            centralizing = false;
+            Debug.Log("offset: " + originOff);
+            temp.x += originOff * Time.deltaTime;
         }
-        temp.x += originOff * Time.deltaTime;
-        rb.MovePosition(temp);
+        return temp;
+        // rb.MovePosition(temp);
     }
     void FixedUpdate()
     {
@@ -172,7 +192,7 @@ public class PlayerController : MonoBehaviour
         //transform.position = transform.position + velocity;
         //transform.RotateAroundLocal(Vector3.right, 10 * Time.deltaTime);
 
-        if (// transform.position.z > 500f || 
+        if (transform.position.z > 1600f || 
             transform.position.y < -20)
         {
             transform.position = startPos;
