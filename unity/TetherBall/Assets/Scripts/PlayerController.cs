@@ -133,7 +133,7 @@ public class PlayerController : MonoBehaviour
                 // We're in mobile so use dis shit
                 // Handling Gyroscope code
                 gyroOffset = GyroToUnity(Input.gyro.attitude) * new Vector3(0, maxGyroOffset, 0);
-                if (Mathf.Abs(gyroOffset.x) < .1f && Mathf.Abs(rb.velocity.y) < .1f)
+                if (Mathf.Abs(gyroOffset.y) < .1f && Mathf.Abs(rb.velocity.y) < .1f)
                 {
                     currentOffset = 0;
                     originOff = 10 * (originX - transform.position.x);
@@ -141,7 +141,7 @@ public class PlayerController : MonoBehaviour
                 }
                 else
                 {
-                    currentOffset = gyroOffset.x;
+                    currentOffset = -gyroOffset.y;
                     Mathf.Clamp(currentOffset, -maxGyroOffset, maxGyroOffset);
                     moveBy = currentOffset - prevOffset;
                 }
