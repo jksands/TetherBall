@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour
     private bool mouseDown = false;
     private Rigidbody rb;
     public float currentOffset;
+    public float maxUnityOffset;
     public float prevOffset;
     public float moveBy;
 
@@ -50,28 +51,14 @@ public class PlayerController : MonoBehaviour
         rb = gameObject.GetComponent<Rigidbody>();
         originX = transform.position.x;
         centralizing = false;
+        maxUnityOffset = 3;
         
     }
 
     // Update is called once per frame
     void Update()
     {
-        // Moved to FixedUpdate
-
-        //// Set to previous position
-        //if (Input.GetMouseButtonDown(0))
-        //{
-        //    mouseDown = true;
-        //    // centralizing = false;
-        //}
-        //else if(Input.GetMouseButtonUp(0))
-        //{
-        //    mouseDown = false;
-        //    hit = new RaycastHit();
-        //    rb.velocity = new Vector3(0, rb.velocity.y, rb.velocity.z);
-        //    // centralizing = true;
-        //    originOff = originX - transform.position.x;
-        //}
+       
         Vector3 temp = transform.position;
         if (centralizing)
         {
@@ -79,34 +66,58 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            // Handling Gyroscope code
-            gyroOffset = GyroToUnity(Input.gyro.attitude) * new Vector3(0, maxGyroOffset, 0);
-            currentOffset = gyroOffset.x;
-            Mathf.Clamp(currentOffset, -maxGyroOffset, maxGyroOffset);
+            if (Application.isEditor)
+            {
+                // Moved to FixedUpdate
 
-            //// Calculate offset
-            //if (Input.GetKey(KeyCode.A))
-            //{
-            //    currentOffset -= 10 * Time.deltaTime;
-            //    if (currentOffset < maxLeft)
-            //        currentOffset = maxLeft;
-            //}
-            //else if (Input.GetKey(KeyCode.D))
-            //{
-            //    currentOffset += 10 * Time.deltaTime;
-            //    if (currentOffset > maxRight)
-            //        currentOffset = maxRight;
-            //}
-            //else
-            //{
-            //    if (currentOffset != 0)
-            //    {
-            //        currentOffset += ((0 - currentOffset) / Mathf.Abs(currentOffset)) * 10 * Time.deltaTime;
-            //        if (currentOffset > -.1f && currentOffset < .1f)
-            //            currentOffset = 0;
-            //    }
+                // Set to previous position
+                if (Input.GetMouseButtonDown(0))
+                {
+                    mouseDown = true;
+                    // centralizing = false;
+                }
+                else if (Input.GetMouseButtonUp(0))
+                {
+                    mouseDown = false;
+                    hit = new RaycastHit();
+                    rb.velocity = new Vector3(0, rb.velocity.y, rb.velocity.z);
+                    // centralizing = true;
+                    originOff = originX - transform.position.x;
+                }
+                //// Calculate offset
+                if (Input.GetKey(KeyCode.A))
+                {
+                    currentOffset -= 10 * Time.deltaTime;
+                    if (currentOffset < -maxUnityOffset)
+                        currentOffset = -maxUnityOffset;
+                }
+                else if (Input.GetKey(KeyCode.D))
+                {
+                    currentOffset += 10 * Time.deltaTime;
+                    if (currentOffset > maxUnityOffset)
+                        currentOffset = maxUnityOffset;
+                }
+                else
+                {
+                    if (currentOffset != 0)
+                    {
+                        currentOffset += ((0 - currentOffset) / Mathf.Abs(currentOffset)) * 10 * Time.deltaTime;
+                        if (currentOffset > -.1f && currentOffset < .1f)
+                            currentOffset = 0;
+                    }
 
-            //}
+                }
+            }
+            else
+            {
+                // We're in mobile so use dis shit
+                // Handling Gyroscope code
+                gyroOffset = GyroToUnity(Input.gyro.attitude) * new Vector3(0, maxGyroOffset, 0);
+                currentOffset = gyroOffset.x;
+                Mathf.Clamp(currentOffset, -maxGyroOffset, maxGyroOffset);
+            }
+
+            
             moveBy = currentOffset - prevOffset;
             prevOffset = currentOffset;
             // Debug.Log(moveBy);
@@ -138,37 +149,15 @@ public class PlayerController : MonoBehaviour
         // rb.velocity = new Vector3(0, 0, rb.velocity.z);
         direction = Vector3.forward;
 
-        if (Input.touchCount > 0)
+        if (Application.isEditor)
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.touches[0].position);
-            // RaycastHit hit;
-            // Get the 8th mask (which is the tetherable layer)
-            int layerMask = 1 << 8;
-
-            if (Physics.Raycast(ray, out hit, tetherDistance, layerMask))
-            {
-
-                Vector3 newDirVector = (hit.point - transform.position).normalized;
-                newDirVector.x *= tetherForceLateral;
-                newDirVector.y *= tetherForceVertical;
-                newDirVector.z *= tetherForceVertical;
-
-                direction += newDirVector;
-
-                Debug.DrawLine(ray.origin, hit.point);
-
-                Debug.Log(hit.point);
-                
-            }
+            HandleUnity();
         }
         else
         {
-            mouseDown = false;
-            hit = new RaycastHit();
-            rb.velocity = new Vector3(0, rb.velocity.y, rb.velocity.z);
-            // centralizing = true;
-            originOff = originX - transform.position.x;
+            HandleMobile();
         }
+        
 
         rb.AddForce(direction * speed);
         if (rb.velocity.z > maxSpeed)
@@ -183,7 +172,8 @@ public class PlayerController : MonoBehaviour
         //transform.position = transform.position + velocity;
         //transform.RotateAroundLocal(Vector3.right, 10 * Time.deltaTime);
 
-        if (transform.position.z > 500f || transform.position.y < -20)
+        if (// transform.position.z > 500f || 
+            transform.position.y < -20)
         {
             transform.position = startPos;
             currentOffset = 0;
@@ -192,6 +182,60 @@ public class PlayerController : MonoBehaviour
             transform.rotation = Quaternion.identity;
         }
 
+    }
+
+    void HandleUnity()
+    {
+        if (mouseDown)
+        {
+            HandleRaycast(Camera.main.ScreenPointToRay(Input.mousePosition));
+        }
+        else
+        {
+            mouseDown = false;
+            hit = new RaycastHit();
+            rb.velocity = new Vector3(0, rb.velocity.y, rb.velocity.z);
+            // centralizing = true;
+            originOff = originX - transform.position.x;
+        }
+    }
+    void HandleMobile()
+    {
+        if (Input.touchCount > 0)
+        {
+            HandleRaycast(Camera.main.ScreenPointToRay(Input.touches[0].position));
+        }
+        else
+        {
+            mouseDown = false;
+            hit = new RaycastHit();
+            rb.velocity = new Vector3(0, rb.velocity.y, rb.velocity.z);
+            // centralizing = true;
+            originOff = originX - transform.position.x;
+        }
+    }
+    void HandleRaycast(Ray ray)
+    {
+        // Ray ray = Camera.main.ScreenPointToRay(Input.touches[0].position);
+        // RaycastHit hit;
+        // Get the 8th mask (which is the tetherable layer)
+        int layerMask = 1 << 8;
+
+        if (Physics.Raycast(ray, out hit, tetherDistance, layerMask))
+        {
+
+            Vector3 newDirVector = (hit.point - transform.position).normalized;
+            newDirVector.x *= tetherForceLateral;
+            newDirVector.y *= tetherForceVertical;
+            newDirVector.z *= tetherForceVertical;
+
+            direction += newDirVector;
+
+            Debug.DrawLine(ray.origin, hit.point);
+
+            Debug.Log(hit.point);
+
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -209,7 +253,7 @@ public class PlayerController : MonoBehaviour
 
     void OnRenderObject()
     {
-        if (Input.touchCount>0)
+        if (Input.touchCount>0 || mouseDown)
         {
             if (hit.distance > 0)
             {
