@@ -263,7 +263,7 @@ public class PlayerController : MonoBehaviour
 
             Debug.DrawLine(ray.origin, hit.point);
 
-            Debug.Log(hit.point);
+           //  Debug.Log(hit.point);
 
         }
     }
@@ -272,11 +272,12 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.gameObject.tag == "Obstacle")
         {
-            Debug.Log("HIT OBSTACLE");
+            // Debug.Log("HIT OBSTACLE");
             transform.position = startPos;
             direction = Vector3.forward;
             rb.velocity = Vector3.forward;
             currentOffset = 0;
+            gyroOffset = Vector3.zero;
             transform.rotation = Quaternion.identity;
         }
     }
