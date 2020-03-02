@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public Vector3 direction; //Direction in which to apply the movement force
-    public float tetherDistance = 5f;
+    public float tetherDistance = 10f;
     public float tetherForceLateral = 5f;
     public float tetherForceVertical = 5f;
     
@@ -93,40 +93,40 @@ public class PlayerController : MonoBehaviour
                     // originOff = originX - transform.position.x;
                 }
                 //// Calculate offset
-                if (Input.GetKey(KeyCode.A))
-                {
-                    currentOffset -= 10 * Time.deltaTime;
-                    if (currentOffset < -maxUnityOffset)
-                        currentOffset = -maxUnityOffset;
+                //if (Input.GetKey(KeyCode.A))
+                //{
+                //    currentOffset -= 10 * Time.deltaTime;
+                //    if (currentOffset < -maxUnityOffset)
+                //        currentOffset = -maxUnityOffset;
 
 
-                    moveBy = currentOffset - prevOffset;
-                }
-                else if (Input.GetKey(KeyCode.D))
-                {
-                    currentOffset += 10 * Time.deltaTime;
-                    if (currentOffset > maxUnityOffset)
-                        currentOffset = maxUnityOffset;
+                //    moveBy = currentOffset - prevOffset;
+                //}
+                //else if (Input.GetKey(KeyCode.D))
+                //{
+                //    currentOffset += 10 * Time.deltaTime;
+                //    if (currentOffset > maxUnityOffset)
+                //        currentOffset = maxUnityOffset;
 
 
-                    moveBy = currentOffset - prevOffset;
-                }
-                else
-                {
-                    if (Mathf.Abs(rb.velocity.y) < .1f)
-                    {
-                        currentOffset = 0;
-                        originOff = 10 * (originX - transform.position.x);
-                        temp = ReturnToOrigin(temp);
-                    }
-                    //if (currentOffset != 0)
-                    //{
-                    //    currentOffset += ((0 - currentOffset) / Mathf.Abs(currentOffset)) * 10 * Time.deltaTime;
-                    //    if (currentOffset > -.1f && currentOffset < .1f)
-                    //        currentOffset = 0;
-                    //}
+                //    moveBy = currentOffset - prevOffset;
+                //}
+                //else
+                //{
+                //    if (Mathf.Abs(rb.velocity.y) < .1f)
+                //    {
+                //        currentOffset = 0;
+                //        originOff = 10 * (originX - transform.position.x);
+                //        temp = ReturnToOrigin(temp);
+                //    }
+                //    //if (currentOffset != 0)
+                //    //{
+                //    //    currentOffset += ((0 - currentOffset) / Mathf.Abs(currentOffset)) * 10 * Time.deltaTime;
+                //    //    if (currentOffset > -.1f && currentOffset < .1f)
+                //    //        currentOffset = 0;
+                //    //}
 
-                }
+                //}
             }
             else
             {
@@ -203,7 +203,7 @@ public class PlayerController : MonoBehaviour
         //transform.RotateAroundLocal(Vector3.right, 10 * Time.deltaTime);
 
         if (transform.position.z > 1600f || 
-            transform.position.y < -20)
+            transform.position.y < -40)
         {
             transform.position = startPos;
             currentOffset = 0;
@@ -219,6 +219,7 @@ public class PlayerController : MonoBehaviour
         if (mouseDown)
         {
             HandleRaycast(Camera.main.ScreenPointToRay(Input.mousePosition));
+            // rb.mass = .2f;
         }
         else
         {
@@ -256,7 +257,7 @@ public class PlayerController : MonoBehaviour
 
             Vector3 newDirVector = (hit.point - transform.position).normalized;
             newDirVector.x *= tetherForceLateral;
-            newDirVector.y *= tetherForceVertical;
+            newDirVector.y *= tetherForceVertical * 1.2f;
             newDirVector.z *= tetherForceVertical;
 
             direction += newDirVector;
