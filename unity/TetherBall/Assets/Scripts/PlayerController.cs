@@ -177,7 +177,7 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         // rb.velocity = new Vector3(0, 0, rb.velocity.z);
-        direction = Vector3.forward;
+        // direction = Vector3.forward;
 
         if (Application.isEditor)
         {
@@ -218,16 +218,22 @@ public class PlayerController : MonoBehaviour
     {
         if (mouseDown)
         {
-            HandleRaycast(Camera.main.ScreenPointToRay(Input.mousePosition));
+            if (hit.distance <= 0)
+            {
+                HandleRaycast(Camera.main.ScreenPointToRay(Input.mousePosition));
+            }
+            // Hit exists and has gone out of scope
+            else if (transform.position.z > hit.point.z + 10)
+            {
+                mouseDown = false;
+            }
             // rb.mass = .2f;
         }
         else
         {
-            mouseDown = false;
+            direction = Vector3.forward;
             hit = new RaycastHit();
             rb.velocity = new Vector3(0, rb.velocity.y, rb.velocity.z);
-            // centralizing = true;
-            // originOff = originX - transform.position.x;
         }
     }
     void HandleMobile()
@@ -251,7 +257,6 @@ public class PlayerController : MonoBehaviour
         // RaycastHit hit;
         // Get the 8th mask (which is the tetherable layer)
         int layerMask = 1 << 8;
-
         if (Physics.Raycast(ray, out hit, tetherDistance, layerMask))
         {
 
@@ -264,9 +269,11 @@ public class PlayerController : MonoBehaviour
 
             Debug.DrawLine(ray.origin, hit.point);
 
-           //  Debug.Log(hit.point);
+            //  Debug.Log(hit.point);
 
         }
+
+        Debug.Log("distance" + hit.distance);
     }
 
     private void OnCollisionEnter(Collision collision)
