@@ -221,11 +221,7 @@ public class PlayerController : MonoBehaviour
         if (transform.position.z > 1600f || 
             transform.position.y < -40)
         {
-            transform.position = startPos;
-            currentOffset = 0;
-            direction = Vector3.forward;
-            rb.velocity = Vector3.forward;
-            transform.rotation = Quaternion.identity;
+            ResetGame();
         }
 
     }
@@ -305,17 +301,25 @@ public class PlayerController : MonoBehaviour
         Debug.Log("distance" + hit.distance);
     }
 
+    void ResetGame()
+    {
+
+        transform.position = startPos;
+        direction = Vector3.forward;
+        rb.velocity = Vector3.forward;
+        currentOffset = 0;
+        gyroOffset = Vector3.zero;
+        transform.rotation = Quaternion.identity;
+        hit = new RaycastHit();
+
+
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.tag == "Obstacle")
         {
-            // Debug.Log("HIT OBSTACLE");
-            transform.position = startPos;
-            direction = Vector3.forward;
-            rb.velocity = Vector3.forward;
-            currentOffset = 0;
-            gyroOffset = Vector3.zero;
-            transform.rotation = Quaternion.identity;
+            ResetGame();
         }
     }
 
