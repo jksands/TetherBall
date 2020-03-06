@@ -77,25 +77,7 @@ public class PlayerController : MonoBehaviour
         else
         {
             
-            if (Application.isMobilePlatform)
-            {
-                // We're in mobile so use dis shit
-                // Handling Gyroscope code
-                //gyroOffset = GyroToUnity(Input.gyro.attitude) * new Vector3(0, maxGyroOffset, 0);
-                //if (Mathf.Abs(gyroOffset.y) < .1f && Mathf.Abs(rb.velocity.y) < .1f)
-                //{
-                //    currentOffset = 0;
-                //    originOff = 10 * (originX - transform.position.x);
-                //    temp = ReturnToOrigin(temp);
-                //}
-                //else
-                //{
-                //    currentOffset = -gyroOffset.y;
-                //    Mathf.Clamp(currentOffset, -maxGyroOffset, maxGyroOffset);
-                //    moveBy = currentOffset - prevOffset;
-                //}
-            }
-            else
+            if (Application.isEditor)
             {
                 // Moved to FixedUpdate
 
@@ -149,6 +131,27 @@ public class PlayerController : MonoBehaviour
 
                 //}
             }
+            else
+            {
+
+                // We're in mobile so use dis shit
+                // Handling Gyroscope code
+                //gyroOffset = GyroToUnity(Input.gyro.attitude) * new Vector3(0, maxGyroOffset, 0);
+                //if (Mathf.Abs(gyroOffset.y) < .1f && Mathf.Abs(rb.velocity.y) < .1f)
+                //{
+                //    currentOffset = 0;
+                //    originOff = 10 * (originX - transform.position.x);
+                //    temp = ReturnToOrigin(temp);
+                //}
+                //else
+                //{
+                //    currentOffset = -gyroOffset.y;
+                //    Mathf.Clamp(currentOffset, -maxGyroOffset, maxGyroOffset);
+                //    moveBy = currentOffset - prevOffset;
+                //}
+
+                
+            }
 
 
             prevOffset = currentOffset;
@@ -182,13 +185,14 @@ public class PlayerController : MonoBehaviour
         // rb.velocity = new Vector3(0, 0, rb.velocity.z);
         // direction = Vector3.forward;
 
-        if (Application.isMobilePlatform)
+        if (Application.isEditor)
         {
-            HandleMobile();
+            HandleUnity();
         }
         else
         {
-            HandleUnity();
+
+            HandleMobile();
         }
         
 
