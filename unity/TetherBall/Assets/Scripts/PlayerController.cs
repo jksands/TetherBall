@@ -77,23 +77,23 @@ public class PlayerController : MonoBehaviour
         else
         {
             
-            if (false)
+            if (Application.isMobilePlatform)
             {
                 // We're in mobile so use dis shit
                 // Handling Gyroscope code
-                gyroOffset = GyroToUnity(Input.gyro.attitude) * new Vector3(0, maxGyroOffset, 0);
-                if (Mathf.Abs(gyroOffset.y) < .1f && Mathf.Abs(rb.velocity.y) < .1f)
-                {
-                    currentOffset = 0;
-                    originOff = 10 * (originX - transform.position.x);
-                    temp = ReturnToOrigin(temp);
-                }
-                else
-                {
-                    currentOffset = -gyroOffset.y;
-                    Mathf.Clamp(currentOffset, -maxGyroOffset, maxGyroOffset);
-                    moveBy = currentOffset - prevOffset;
-                }
+                //gyroOffset = GyroToUnity(Input.gyro.attitude) * new Vector3(0, maxGyroOffset, 0);
+                //if (Mathf.Abs(gyroOffset.y) < .1f && Mathf.Abs(rb.velocity.y) < .1f)
+                //{
+                //    currentOffset = 0;
+                //    originOff = 10 * (originX - transform.position.x);
+                //    temp = ReturnToOrigin(temp);
+                //}
+                //else
+                //{
+                //    currentOffset = -gyroOffset.y;
+                //    Mathf.Clamp(currentOffset, -maxGyroOffset, maxGyroOffset);
+                //    moveBy = currentOffset - prevOffset;
+                //}
             }
             else
             {
@@ -182,7 +182,7 @@ public class PlayerController : MonoBehaviour
         // rb.velocity = new Vector3(0, 0, rb.velocity.z);
         // direction = Vector3.forward;
 
-        if (false)
+        if (Application.isMobilePlatform)
         {
             HandleMobile();
         }
@@ -193,12 +193,12 @@ public class PlayerController : MonoBehaviour
         
 
         rb.AddForce(direction * speed);
-        if (mouseDown && hit.distance > 0)
+        if ((mouseDown || Input.touchCount > 0) && hit.distance > 0)
         {
             
             rb.AddForce(cross = Vector3.Cross((hit.point - transform.position).normalized, Vector3.right) * speed);
         }
-        else if (mouseDown)
+        else if (mouseDown || Input.touchCount > 0)
         {
             rb.AddForce(Vector3.down * speed);
         }
@@ -256,11 +256,21 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.touchCount > 0)
         {
-            HandleRaycast(Camera.main.ScreenPointToRay(Input.touches[0].position));
+            // Get a new hit
+            if (hit.distance <= 0)
+            {
+                HandleRaycast(Camera.main.ScreenPointToRay(Input.touches[0].position));
+            }
+            else if (transform.position.z > hit.point.z + 10)
+            {
+                mouseDown = false;
+            }
         }
+        // Reset hit
         else
         {
-            mouseDown = false;
+            // mouseDown = false;
+            direction = Vector3.forward;
             hit = new RaycastHit();
             rb.velocity = new Vector3(0, rb.velocity.y, rb.velocity.z);
             // centralizing = true;
