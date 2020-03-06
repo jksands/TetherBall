@@ -2003,7 +2003,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 300
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -2060,7 +2060,7 @@ Skybox:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_Enabled: 1
-  m_CustomSkybox: {fileID: 0}
+  m_CustomSkybox: {fileID: 2100000, guid: 66ee4df14a9e4c149b1726f55012d371, type: 2}
 --- !u!1001 &974855146
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2593,7 +2593,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 8e229fb6e5ad4d948a23a72f94c0af9e, type: 2}
+      objectReference: {fileID: 2100000, guid: cdd048c9ed996b545b02b57007c2d743, type: 2}
     - target: {fileID: 6096544371605704198, guid: 31e892b36209e1f468f98136d14cd803,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -3196,7 +3196,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 8e229fb6e5ad4d948a23a72f94c0af9e, type: 2}
+      objectReference: {fileID: 2100000, guid: cdd048c9ed996b545b02b57007c2d743, type: 2}
     - target: {fileID: 6096544371605704198, guid: 31e892b36209e1f468f98136d14cd803,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -3364,7 +3364,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 8e229fb6e5ad4d948a23a72f94c0af9e, type: 2}
+      objectReference: {fileID: 2100000, guid: cdd048c9ed996b545b02b57007c2d743, type: 2}
     - target: {fileID: 6096544371605704198, guid: 31e892b36209e1f468f98136d14cd803,
         type: 3}
       propertyPath: m_LocalPosition.x
