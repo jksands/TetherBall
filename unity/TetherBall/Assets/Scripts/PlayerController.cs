@@ -32,6 +32,8 @@ public class PlayerController : MonoBehaviour
     private float originOff;
     private bool centralizing;
 
+    private Vector3 cross;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -74,7 +76,26 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            if (Application.isEditor)
+            
+            if (false)
+            {
+                // We're in mobile so use dis shit
+                // Handling Gyroscope code
+                gyroOffset = GyroToUnity(Input.gyro.attitude) * new Vector3(0, maxGyroOffset, 0);
+                if (Mathf.Abs(gyroOffset.y) < .1f && Mathf.Abs(rb.velocity.y) < .1f)
+                {
+                    currentOffset = 0;
+                    originOff = 10 * (originX - transform.position.x);
+                    temp = ReturnToOrigin(temp);
+                }
+                else
+                {
+                    currentOffset = -gyroOffset.y;
+                    Mathf.Clamp(currentOffset, -maxGyroOffset, maxGyroOffset);
+                    moveBy = currentOffset - prevOffset;
+                }
+            }
+            else
             {
                 // Moved to FixedUpdate
 
@@ -128,26 +149,8 @@ public class PlayerController : MonoBehaviour
 
                 //}
             }
-            else
-            {
-                // We're in mobile so use dis shit
-                // Handling Gyroscope code
-                gyroOffset = GyroToUnity(Input.gyro.attitude) * new Vector3(0, maxGyroOffset, 0);
-                if (Mathf.Abs(gyroOffset.y) < .1f && Mathf.Abs(rb.velocity.y) < .1f)
-                {
-                    currentOffset = 0;
-                    originOff = 10 * (originX - transform.position.x);
-                    temp = ReturnToOrigin(temp);
-                }
-                else
-                {
-                    currentOffset = -gyroOffset.y;
-                    Mathf.Clamp(currentOffset, -maxGyroOffset, maxGyroOffset);
-                    moveBy = currentOffset - prevOffset;
-                }
-            }
 
-            
+
             prevOffset = currentOffset;
             // Debug.Log(moveBy);
             // Apply it to the position
@@ -179,20 +182,33 @@ public class PlayerController : MonoBehaviour
         // rb.velocity = new Vector3(0, 0, rb.velocity.z);
         // direction = Vector3.forward;
 
-        if (Application.isEditor)
+        if (false)
         {
-            HandleUnity();
+            HandleMobile();
         }
         else
         {
-            HandleMobile();
+            HandleUnity();
         }
         
 
         rb.AddForce(direction * speed);
+        if (mouseDown && hit.distance > 0)
+        {
+            
+            rb.AddForce(cross = Vector3.Cross((hit.point - transform.position).normalized, Vector3.right) * speed);
+        }
+        else if (mouseDown)
+        {
+            rb.AddForce(Vector3.down * speed);
+        }
         if (rb.velocity.z > maxSpeed)
         {
-            rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y, maxSpeed);
+            rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y, maxSpeed + cross.z);
+        }
+        if (rb.velocity.z < 0)
+        {
+            rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y, 1);
         }
 
         //Old Code
@@ -256,16 +272,19 @@ public class PlayerController : MonoBehaviour
         // Ray ray = Camera.main.ScreenPointToRay(Input.touches[0].position);
         // RaycastHit hit;
         // Get the 8th mask (which is the tetherable layer)
+        
         int layerMask = 1 << 8;
         if (Physics.Raycast(ray, out hit, tetherDistance, layerMask))
         {
 
             Vector3 newDirVector = (hit.point - transform.position).normalized;
+            
             newDirVector.x *= tetherForceLateral;
             newDirVector.y *= tetherForceVertical * 1.2f;
             newDirVector.z *= tetherForceVertical;
 
             direction += newDirVector;
+
 
             Debug.DrawLine(ray.origin, hit.point);
 
